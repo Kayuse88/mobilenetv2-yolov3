@@ -7,6 +7,8 @@ from yolo3.enums import BACKBONE, MODE, OPT
 from train import train
 from train_backbone import train as train_backbone
 from yolo import YOLO, detect_video, detect_img, export_tflite_model, export_serving_model, calculate_map, export_tfjs_model
+from tensorflow.compat.v1 import ConfigProto
+from tensorflow.compat.v1 import InteractiveSession
 
 FLAGS = flags.FLAGS
 
@@ -116,7 +118,7 @@ def main(_):
     if opt == OPT.XLA:
         tf.config.optimizer.set_jit(True)
     elif opt == OPT.DEBUG:
-        tf.compat.v2.random.set_seed(111111);
+        tf.compat.v2.random.set_seed(111111)
         tf.debugging.set_log_device_placement(True)
         tf.config.experimental_run_functions_eagerly(True)
         logging.set_verbosity(logging.DEBUG)
@@ -128,6 +130,9 @@ def main(_):
         valid_gpus=[gpus[index] for index in valid_gpu_indexs]
         tf.config.experimental.set_visible_devices(valid_gpus, 'GPU')
         flags_dict['gpus']=get_gpu_name(valid_gpus)
+        config = tf.compat.v1.ConfigProto()
+        config.gpu_options.allow_growth = True
+        session = InteractiveSession(config=config)
     if flags_dict['backbone'] is None:
         raise ValueError("Please select your model's backbone")
     if FLAGS.mode == MODE.TRAIN:
