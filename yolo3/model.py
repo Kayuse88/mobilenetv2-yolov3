@@ -339,9 +339,9 @@ def yolo_head(feats: tf.Tensor,
 
     # Adjust preditions to each spatial grid point and anchor size.
     box_xy = (tf.sigmoid(feats[..., :2]) + grid) / tf.cast(
-        grid_shape[::-1], feats.dtype)
+        grid_shape[...,::-1], feats.dtype)
     box_wh = tf.exp(feats[..., 2:4]) * tf.cast(
-        anchors_tensor, feats.dtype) / tf.cast(input_shape[::-1], feats.dtype)
+        anchors_tensor, feats.dtype) / tf.cast(input_shape[...,::-1], feats.dtype)
     box_confidence = tf.sigmoid(feats[..., 4:5])
     if calc_loss == True:
         return grid, box_xy, box_wh, box_confidence
